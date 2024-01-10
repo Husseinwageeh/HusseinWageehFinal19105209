@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Dashboard</title>
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+    />
+    <link rel="stylesheet" href="path/to/external.css" />
+    <style>
+      /* Add your custom CSS styles here */
+    </style>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+      <a class="navbar-brand" href="/Dashboard">Dashboard</a>
+      <a class="navbar-brand" href="/history">history</a>
+    </nav>
+    <div class="container">
+      <div class="row">
+        <div class="col-md-6">
+          <h1 style="text-align: center; color: orange">Dashboard</h1>
+          <img
+            src="../assets/img.png"
+            alt="Image"
+            style="display: block; margin: 0 auto; width: 300px"
+          />
+
+          <h3 style="color: blue">Add Department</h3>
+          <form id="addDepartmentForm">
+            <input
+              type="text"
+              name="departmentName"
+              placeholder="Department Name"
+              class="form-control"
+            />
+            <button type="submit" class="btn btn-primary">
+              Add Department
+            </button>
+          </form>
+        </div>
+
+        <div class="col-md-6">
+          <h3 style="color: blue">Add User</h3>
+          <form id="addUserForm">
+            <input
+              type="text"
+              name="username"
+              placeholder="Username"
+              class="form-control"
+            />
+            <input
+              type="password"
+              name="password"
+              placeholder="Password"
+              class="form-control"
+            />
+            <input
+              type="text"
+              name="departmentID"
+              placeholder="Department ID"
+              class="form-control"
+            />
+            <button type="submit" class="btn btn-primary">Add User</button>
+          </form>
+
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Username</th>
+                <th>Password</th>
+                <th>Department</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="userTableBody">
+              <% users.forEach(user => { %>
+              <tr>
+                <td><%= user.username %></td>
+                <td><%= user.password %></td>
+                <td><%= user.departmentID %></td>
+              </tr>
+              <% }); %>
+            </tbody>
+          </table>
+
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Department ID</th>
+                <th>Department Name</th>
+              </tr>
+            </thead>
+            <tbody id="departmentTableBody">
+              <% departments.forEach(user => { %>
+              <tr>
+                <td><%= departments.Id %></td>
+                <td><%= departments.Name %></td>
+              </tr>
+              <% }); %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      $(document).ready(function () {
+        // AJAX for adding department
+        $("#addDepartmentForm").submit(function (e) {
+          e.preventDefault();
+          $.ajax({
+            type: "POST",
+            url: "/api/adddepartment",
+            data: $(this).serialize(),
+            success: function (response) {
+              if (response === true) {
+                $("departmentTableBody").append(`
+                <tr>
+                    <td>${response.departmentID}</td>
+                    <td>${response.departmentName}</td>
+                  </tr>
+        `);
+              } else {
+                alert("Error happened. Please try again later.");
+              }
+            },
+          });
+        });
+
+        // AJAX for adding user
+        $("#addUserForm").submit(function (e) {
+          e.preventDefault();
+          $.ajax({
+            type: "POST",
+            url: "/api/adduser",
+            data: $(this).serialize(),
+            success: function (response) {
+              if (response === true) {
+                $("userTableBody").append(`
+            <tr>
+                <td>${response.username}</td>
+                <td>${response.password}</td>
+                <td>${response.departmentID}</td>
+            </tr>
+        `);
+              } else {
+                alert("Error happened. Please try again later.");
+              }
+            },
+          });
+        });
+
+        // AJAX for deleting user
+        $("body").on("click", ".deleteUserBtn", function () {
+          var Id = $(this).data("userid");
+          $.ajax({
+            type: "POST",
+            url: "/api/deleteuser",
+            data: { Id: Id },
+            success: function (response) {
+              if (response === true) {
+                $(this).closest("tr").remove();
+              } else {
+                alert("Error happened. Please try again later.");
+              }
+            },
+          });
+        });
+      });
+    </script>
+  </body>
+</html>
